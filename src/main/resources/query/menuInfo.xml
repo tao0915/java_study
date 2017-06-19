@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Menu">
+
+	<!--  메뉴 정보 목록 반환 (최상위 마스터 (MENU9) 메뉴 하위에 메뉴목록을 반환)-->
+	<select id="getMoMenuTbList" parameterType="map" resultType="map">
+		SELECT  
+			MENU_ID,
+	        MENU_UP_ID,
+	        MENU_NM,
+	        MENU_DEPTH,
+	        DISP_NO, 
+	        CASE WHEN CONNECT_BY_ISLEAF=1 THEN 'Y' ELSE 'N' END AS LEAF_YN,
+	        MENU_URL,
+	        USE_YN,
+	        DISP_YN
+		FROM MENU_TB	
+		WHERE 1 = 1
+		<if test="USE_YN != null">AND USE_YN = #{USE_YN}</if>
+		<if test="DISP_YN != null">AND DISP_YN = #{DISP_YN}</if>			
+		START WITH MENU_UP_ID = 'MENU9'			
+		CONNECT BY PRIOR MENU_ID = MENU_UP_ID
+		ORDER SIBLINGS BY DISP_NO, MENU_NM
+	</select>
+	
+	<!-- 메뉴 정보 반환(한개) -->
+	<select id="getMoMenuTb" parameterType="String" resultType="map">
+		SELECT  
+			MENU_ID,
+	        MENU_UP_ID,
+	        MENU_NM,
+	        MENU_DEPTH,
+	        DISP_NO,
+	        MENU_URL,
+	        USE_YN,
+	        DISP_YN
+		FROM MENU_TB
+		WHERE MENU_ID = #{menuId}
+	</select>
+	
+	<!-- 메뉴 정보 전시 순서 변경 -->
+	<update id="updateMoMenuTbChange" parameterType="Map">
+		UPDATE MENU_TB A SET DISP_NO = ( 
+			SELECT B.SORT
+			FROM (
+				SELECT 
+					REGEXP_SUBSTR(#{menuIds},'[^,]+',1, LEVEL) AS MENU_ID, LEVEL AS SORT
+					FROM DUAL CONNECT BY REGEXP_INSTR(#{menuIds},'[^,]+',1,LEVEL) <![CDATA[ > ]]> 0
+			) B
+			WHERE B.MENU_ID = A.MENU_ID    
+		)
+		WHERE MENU_ID IN ( 
+			SELECT 
+            	REGEXP_SUBSTR(#{menuIds},'[^,]+',1, LEVEL) AS MENU_ID                             
+				FROM DUAL CONNECT BY REGEXP_INSTR(#{menuIds},'[^,]+',1,LEVEL) <![CDATA[ > ]]> 0
+		)
+	</update>
+	
+	<!-- 메뉴 정보 등록 -->
+	<insert id="insertMoMenuTb" parameterType="Map">
+		<selectKey keyProperty="MENU_ID" resultType="String" order="BEFORE">
+			SELECT 'MENU'||MENU_TB_SEQ.NEXTVAL AS MANU_ID FROM DUAL
+		</selectKey>
+		INSERT INTO MENU_TB
+		( 
+			MENU_ID
+			, MENU_UP_ID
+			, MENU_NM
+			, MENU_URL
+			, MENU_DEPTH
+			, USE_YN
+			, CRE_DT
+			, CRE_ID
+			, MOD_DT
+			, MOD_ID
+			, DISP_NO
+			, DISP_YN
+		) VALUES ( 
+			#{MENU_ID}
+			, #{MENU_UP_ID}
+			, #{MENU_NM}
+			, #{MENU_URL}
+			, #{MENU_DEPTH}
+			, #{USE_YN}
+			, SYSDATE
+			, #{CRE_ID}
+			, SYSDATE
+			, #{MOD_ID}
+			, #{DISP_NO}
+			, #{DISP_YN}
+		)
+	</insert>
+	
+	<!-- 메뉴 정보 수정 -->
+	<update id="updateMoMenuTb" parameterType="Map">
+		UPDATE MENU_TB SET
+			MENU_NM = #{MENU_NM}
+			, MENU_URL = #{MENU_URL}
+			, USE_YN = #{USE_YN}
+			, DISP_YN = #{DISP_YN}
+		WHERE
+			MENU_ID = #{MENU_ID} 
+	</update>
+</mapper>

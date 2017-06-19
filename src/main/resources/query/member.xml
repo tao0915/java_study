@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member">
+
+	<select id="selectMemberList" parameterType="Map" resultType="Map">
+		SELECT ADMIN_ID
+		        ,ADMIN_NM
+		        ,USE_YN
+		        ,TEL_NO
+		        ,CRE_DT
+		        ,CRE_ID
+		        ,MOD_DT
+		        ,MOD_ID
+		FROM MEMBER_TB
+		WHERE 1 = 1
+		<include refid="selectAuthListWhere"/>
+		ORDER BY CRE_DT DESC, ADMIN_ID
+	</select>
+	<sql id="selectAuthListWhere">		
+		<if test="@org.apache.commons.lang.StringUtils@isNotEmpty(ADMIN_NM)">	AND AUTH_NM LIKE #{ADMIN_NM}||'%'</if>										
+	</sql>		
+</mapper>

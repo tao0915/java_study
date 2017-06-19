@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system">
+	<!--
+		공통 프로퍼티를 DB상에서 관리함 (공통 메세지 또는 키) 
+	 -->
+	<select id="selectPropertyList"  parameterType="map" resultType="map">
+		SELECT SYSKEY, SYSVALUE FROM TEMP_PROPERTY
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="@org.apache.commons.lang.StringUtils@isNotEmpty(SYSKEY)"> AND SYSKEY = #{SYSKEY}</if>
+		</trim>
+	</select>
+	
+	<!-- 
+		공통 프로퍼티 등록 (다중등록 위함)
+	 -->
+	<insert id="insertProperty" parameterType="map">
+		INSERT INTO TEMP_PROPERTY ( SYSKEY, SYSVALUE)
+		SELECT  REGEXP_SUBSTR(#{SYSKEYs},'[^,]+',1, LEVEL) as SYSKEY,
+		 			REGEXP_SUBSTR(#{SYSVALUEs},'[^,]+',1, LEVEL) as SYSVALUE
+		FROM DUAL CONNET BY REGEXP_INSTR(#{SYSKEYs},'[^,]+',1,LEVEL) > 0
+	</insert>
+	
+	<!--
+		공통 프로퍼티 수정
+	 -->	
+	<update id="updateProperty" parameterType="map">
+		UPDATE TEMP_PROPERTY SET SYSVALUE=#{SYSVALUE} 
+		WHERE SYSKEY = #{SYSKEY} 
+	</update>
+	
+	<!--
+		공통 프로퍼티 삭제
+	 -->	
+	<delete id="deleteProperty" parameterType="map">
+		DELETE FROM TEMP_PROPERTY 
+		WHERE SYSKEY = #{SYSKEY} 		
+	</delete>
+	
+</mapper>

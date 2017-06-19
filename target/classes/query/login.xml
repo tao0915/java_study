@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="login">
+	<!--
+		관리자정보반환 
+	 -->
+	<select id="selectAdminInfo" parameterType="Map"  resultType="Map">
+		<![CDATA[
+		SELECT	 A.ADMIN_ID AS ID
+					,A.ADMIN_ID
+			        ,A.ADMIN_PWD
+			        ,A.ADMIN_NM
+			        ,A.TEL_NO
+			        ,A.MOBILE_NO
+			        ,A.EMAIL
+			        ,A.ORG_NM
+			        ,A.USE_YN
+			        ,A.SYS_DIV_CD
+			        ,A.ADMIN_CD
+			        ,A.LOGIN_FAIL_CNT
+			        ,A.CRE_DT
+			        ,A.CRE_ID
+			        ,A.MOD_DT
+			        ,A.MOD_ID        
+		FROM MEMBER_TB A
+		WHERE 	ADMIN_ID = #{ADMIN_ID} 
+		AND		ADMIN_PWD = #{ADMIN_PWD}
+		]]>
+	</select>
+</mapper>

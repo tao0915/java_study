@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="auth">
+	<!-- 그룹권한등록 -->
+	<insert id="insertAuth" parameterType="map">
+	INSERT INTO AUTH_TB( AUTH_ID
+					                      ,AUTH_NM
+					                      ,USE_YN
+					                      ,AUTH_DESC
+					                      ,CRE_DT
+					                      ,CRE_ID
+	) VALUES ( #{AUTH_ID}
+		           ,#{AUTH_NM}
+		           ,#{USE_YN}
+		           ,#{AUTH_DESC}
+		           ,SYSDATE
+		           ,#{CRE_ID})		           
+	</insert>
+	
+
+	<!-- 그룹권한수정 -->	
+	<update id="updateAuth" parameterType="map">
+	UPDATE AUTH_TB SET AUTH_NM=#{AUTH_NM}
+				                     ,USE_YN=#{USE_YN}
+				                     ,AUTH_DESC=#{AUTH_DESC}
+				                     ,MOD_DT= SYSDATE
+				                     ,MOD_ID=#{MOD_ID}
+	WHERE AUTH_ID = #{AUTH_ID} 											
+	</update>
+	
+	<!-- 그룹권한정보반환 -->
+	<select id="selectAuth" parameterType="map" resultType="map">
+	SELECT AUTH_ID
+	        ,AUTH_NM
+	        ,USE_YN
+	        ,AUTH_DESC
+	        ,CRE_DT
+	        ,CRE_ID
+	        ,MOD_DT
+	        ,MOD_ID
+	FROM AUTH_TB
+	WHERE 1 = 1
+	<if test="AUTH_ID != null">AND AUTH_ID = #{AUTH_ID}</if>		        
+	<if test="USE_YN != null">AND USE_YN = #{USE_YN}</if>
+	ORDER BY CRE_DT DESC
+	</select>
+	
+	<!-- 그룹권한정보반환(하나) -->
+	<select id="selectAuthOne" parameterType="map" resultType="map">
+	SELECT AUTH_ID
+	        ,AUTH_NM
+	        ,USE_YN
+	        ,AUTH_DESC
+	        ,CRE_DT
+	        ,CRE_ID
+	        ,MOD_DT
+	        ,MOD_ID
+	        ,(SELECT LISTAGG(MENU_ID,',') WITHIN GROUP(ORDER BY MENU_ID) FROM AUTH_MAPP_TB WHERE AUTH_ID = A.AUTH_ID) AS MENU_IDS
+	FROM AUTH_TB A
+	WHERE AUTH_ID = #{AUTH_ID}	
+	</select>
+		
+	<!-- 관리자 접근 메뉴목록반환 -->
+	<select id="selectAuthMenuList" parameterType="map" resultType="map">
+	SELECT
+           C.MENU_ID
+          ,C.MENU_UP_ID
+          ,C.MENU_NM
+          ,C.MENU_URL
+          ,C.MENU_DEPTH
+          ,C.USE_YN
+          ,C.DISP_NO
+          ,CASE WHEN CONNECT_BY_ISLEAF=1 THEN 'Y' ELSE 'N' END AS LEAF_YN
+	FROM ( SELECT AUTH_ID FROM ADMIN_MAPP_TB WHERE ADMIN_ID = #{ADMIN_ID} limit 1) A,
+          AUTH_MAPP_TB B,
+          MENU_TB C
+    WHERE A.AUTH_ID = B.AUTH_ID
+    AND B.MENU_ID = C.MENU_ID
+    <if test="USE_YN != null">AND C.USE_YN = #{USE_YN}</if>
+    <if test="DISP_YN != null">AND C.DISP_YN = #{DISP_YN}</if>
+    START WITH C.MENU_UP_ID  = 'ROOTMENU'  
+    CONNECT BY PRIOR C.MENU_ID = C.MENU_UP_ID
+    ORDER SIBLINGS BY C.DISP_NO, C.MENU_NM     			
+	</select>
+	
+	
+	<!-- 관리자 접근 하위 메뉴 목록 -->
+	<select id="selectAuthSubMenuList"  parameterType="map" resultType="map">
+		SELECT 
+	           MENU_ID
+	           ,MENU_UP_ID
+	           ,MENU_NM	           
+	           ,MENU_DEPTH
+	           ,USE_YN
+	           ,DISP_NO	
+	           ,(SELECT 'Y' FROM MENU_TB WHERE MENU_UP_ID = A.MENU_ID AND USE_YN = 'Y' AND DISP_YN = 'Y' LIMIT 1) as NOT_LEFT_YN          
+		FROM MENU_TB A	          
+	    WHERE A.MENU_UP_ID = #{MENU_UP_ID}
+	    <if test="USE_YN != null">AND USE_YN = #{USE_YN}</if>
+	    <if test="DISP_YN != null">AND DISP_YN = #{DISP_YN}</if>
+	    AND EXISTS(
+		                    SELECT 'Y' 
+		                    FROM ADMIN_MAPP_TB B 
+		                    		,AUTH_MAPP_TB C
+		                    WHERE B.ADMIN_ID = #{ADMIN_ID}
+		                    AND B.AUTH_ID = C.AUTH_ID
+		                    AND C.MENU_ID = A.MENU_ID
+		                    LIMIT 1
+                    	)
+         ORDER BY A.DISP_NO, A.MENU_NM
+	</select>
+	
+	
+	<!-- 관리자 메뉴 정보 반환 -->	
+	<select id="selectAuthMenuOne"  parameterType="map" resultType="map">
+	SELECT
+           A.MENU_ID
+          ,A.MENU_UP_ID
+          ,A.MENU_NM
+          ,A.MENU_URL                            
+	FROM MENU_TB A
+	WHERE A.MENU_ID =#{MENU_ID}
+	AND EXISTS (
+			            SELECT 'Y' 
+			            FROM ADMIN_MAPP_TB B, AUTH_MAPP_TB C
+			            WHERE B.ADMIN_ID =#{ADMIN_ID}
+			            AND   C.MENU_ID = A.MENU_ID
+			            AND   C.AUTH_ID = B.AUTH_ID
+			            LIMIT 1 ) 
+	</select>
+	
+	<!-- 관리자 수정 폼에 대한 관리자 정보 반환 -->
+	<select id="selectAuthAdminInfo" parameterType="string" resultType="map">
+		SELECT	A.ADMIN_ID
+			        ,A.ADMIN_PWD
+			        ,A.ADMIN_NM
+			        ,A.TEL_NO
+			        ,A.MOBILE_NO
+			        ,A.EMAIL
+			        ,A.ORG_NM
+			        ,A.USE_YN
+			        ,A.SYS_DIV_CD
+			        ,A.ADMIN_CD
+			        ,A.LOGIN_FAIL_CNT
+			        ,A.CRE_DT
+			        ,A.CRE_ID
+			        ,A.MOD_DT
+			        ,A.MOD_ID
+					,(SELECT AUTH_ID FROM ADMIN_MAPP_TB WHERE ADMIN_ID = A.ADMIN_ID AND ROWNUM &lt;= 1) AS AUTH_ID			        			        		      
+		FROM MEMBER_TB A
+		WHERE 	A.ADMIN_ID = #{ADMIN_ID}
+		AND ROWNUM &lt;= 1
+	</select>
+	
+	<!--
+		관리자정보등록
+	 -->	
+	<insert id="insertAdmin" parameterType="map">
+		INSERT INTO MEMBER_TB( ADMIN_ID
+		                       ,ADMIN_PWD
+		                       ,ADMIN_NM
+		                       ,TEL_NO
+		                       ,MOBILE_NO
+		                       ,EMAIL
+		                       ,ORG_NM
+		                       ,USE_YN
+		                       ,SYS_DIV_CD
+		                       ,ADMIN_CD
+		                       ,LOGIN_FAIL_CNT
+		                       ,CRE_DT
+		                       ,CRE_ID
+		                       ,MOD_DT
+		                       ,MOD_ID
+		) VALUES ( #{ADMIN_ID}
+		           ,#{ADMIN_PWD}
+		           ,#{ADMIN_NM}
+		           ,#{TEL_NO}
+		           ,#{MOBILE_NO}
+		           ,#{EMAIL}
+		           ,#{ORG_NM}
+		           ,#{USE_YN}
+		           ,#{SYS_DIV_CD}
+		           ,#{ADMIN_CD}
+		           ,#{LOGIN_FAIL_CNT}
+		           ,SYSDATE
+		           ,#{CRE_ID}
+		           ,SYSDATE
+		           ,#{MOD_ID})
+	</insert>
+	
+	
+	<!--
+		관리자정보수정
+	 -->		
+	<update id="updateAdmin" parameterType="map" >
+	UPDATE MEMBER_TB SET  ADMIN_PWD=#{ADMIN_PWD}
+						                      ,ADMIN_NM=#{ADMIN_NM}
+						                      ,TEL_NO=#{TEL_NO}
+						                      ,MOBILE_NO=#{MOBILE_NO}
+						                      ,EMAIL=#{EMAIL}
+						                      ,ORG_NM=#{ORG_NM}
+						                      ,USE_YN=#{USE_YN}
+						                      ,MOD_DT=SYSDATE
+						                      ,MOD_ID=#{MOD_ID}	
+   WHERE ADMIN_ID=#{ADMIN_ID}	                      	
+	</update>
+	
+	<!--
+		관리자목록정보반환
+	 -->
+	<select id="selectAdminInfoList" parameterType="Map"  resultType="Map">
+		SELECT A.*
+		FROM (
+					SELECT A.*
+							 ,ROWNUM AS NUM	
+				    FROM (
+								SELECT	ADMIN_ID
+									        ,ADMIN_PWD
+									        ,ADMIN_NM
+									        ,TEL_NO
+									        ,MOBILE_NO
+									        ,EMAIL
+									        ,ORG_NM
+									        ,USE_YN
+									        ,SYS_DIV_CD
+									        ,ADMIN_CD
+									        ,LOGIN_FAIL_CNT
+									        ,CRE_DT
+									        ,CRE_ID
+									        ,MOD_DT
+									        ,MOD_ID						        			        		      
+								FROM MEMBER_TB
+								ORDER BY CRE_DT DESC, ADMIN_ID
+				   			 ) A
+					WHERE ROWNUM &lt;=#{endRow}	
+		) A
+		WHERE NUM &gt;= #{startRow}
+	</select>
+	
+	<!--
+		관리자목록정보반환카운트
+	 -->
+	<select id="selectAdminInfoListCount" parameterType="Map"  resultType="int">
+			SELECT COUNT(*) FROM MEMBER_TB
+	</select>
+	
+	
+	<!--
+		관리자아이디사용유무체크
+	 -->	
+	<select id="selectAdminIdYnChk" parameterType="string"  resultType="string">
+		SELECT 'Y' FROM MEMBER_TB WHERE ADMIN_ID = #{ADMIN_ID}
+	</select>
+	
+	
+	<!--
+		관리자권한매핑정보등록		
+	 -->
+	 <insert id="insertAdminMapp" parameterType="map">
+	 	INSERT INTO ADMIN_MAPP_TB ( ADMIN_ID, AUTH_ID, CRE_DT, CRE_ID, MOD_DT, MOD_ID) 	 		
+	 	VALUES(#{ADMIN_ID}, #{AUTH_ID}, SYSDATE, #{CRE_ID}, SYSDATE, #{MOD_ID})	 	
+	 </insert>
+	 
+	<!--
+		관리자권한매핑정보삭제		
+	 -->
+	 <insert id="deleteAdminMapp" parameterType="string">
+	    DELETE FROM ADMIN_MAPP_TB WHERE ADMIN_ID=#{ADMIN_ID} 	 	
+	 </insert>	 	 	 	
+	
+	<!-- 그룹권한목록정보반환 -->
+	<select id="selectAuthList" parameterType="map" resultType="map">
+		SELECT A.*
+		FROM (
+					SELECT A.*
+							 ,ROWNUM AS NUM	
+				    FROM (
+								SELECT AUTH_ID
+								        ,AUTH_NM
+								        ,USE_YN
+								        ,AUTH_DESC
+								        ,CRE_DT
+								        ,CRE_ID
+								        ,MOD_DT
+								        ,MOD_ID
+								FROM AUTH_TB
+								WHERE 1 = 1
+								<include refid="selectAuthListWhere"/>
+								ORDER BY CRE_DT DESC, AUTH_ID
+				   			 ) A
+					WHERE ROWNUM &lt;=#{endRow}	
+		) A
+		WHERE NUM &gt;= #{startRow}	
+	</select>
+	
+	<!--
+		그룹권한목록정보반환카운트
+	 -->
+	<select id="selectAuthListCount" parameterType="map"  resultType="int">
+			SELECT COUNT(*) FROM AUTH_TB WHERE 1 = 1
+			<include refid="selectAuthListWhere"/>
+	</select>
+	
+	<!--
+		작성자	: 유승일
+		작성일 : 2016.09.18
+		기능	: 해당 종목을 본 사용자 목록검색조건
+	-->		
+	<sql id="selectAuthListWhere">		
+		<if test="@org.apache.commons.lang.StringUtils@isNotEmpty(AUTH_NM)">	AND AUTH_NM LIKE #{AUTH_NM}||'%'</if>										
+	</sql>			
+	
+	
+	<!--
+		권한아이디사용유무체크
+	 -->	
+	<select id="selectAuthIdYnChk" parameterType="string"  resultType="string">
+		SELECT 'Y' FROM AUTH_TB WHERE AUTH_ID = #{AUTH_ID}
+	</select>
+	
+	<!--
+		권한 메뉴 매핑 정보 등록 
+	 -->
+	<insert id="insertMoAuthMappTb" parameterType="map">
+		INSERT INTO AUTH_MAPP_TB (MENU_ID, AUTH_ID, CRE_DT, CRE_ID)
+		SELECT	REGEXP_SUBSTR(#{MENU_IDS},'[^,]+',1, LEVEL) AS MENU_ID
+					,#{AUTH_ID} AS AUTH_ID
+					,SYSDATE AS CRE_DT
+					,#{CRE_ID}									
+		 FROM DUAL
+        CONNECT BY  REGEXP_INSTR(#{MENU_IDS},'[^,]+',1,LEVEL) &gt; 0 
+	</insert>
+	
+	<!--
+		권한 메뉴 매핑 정보 삭제 
+	 -->	
+	<delete id="deleteMoAuthMappTb"  parameterType="string">
+		DELETE FROM AUTH_MAPP_TB WHERE AUTH_ID = #{AUTH_ID}
+	</delete>
+	
+	<!-- 
+		권한별 모든 메뉴url 정보를 반환
+	 -->
+	<select id="loadAuthMenuUrl"  parameterType="string"  resultType="map">
+		SELECT
+		*
+		FROM (
+		        SELECT  A.AUTH_ID        
+		               ,(SELECT MENU_URL FROM MENU_TB WHERE MENU_ID = B.MENU_ID) AS MENU_URL        
+		        FROM AUTH_TB A
+		            ,AUTH_MAPP_TB B
+		        WHERE A.AUTH_ID = B.AUTH_ID
+		        AND #{AUTH_ID} IS NULL OR A.AUTH_ID = #{AUTH_ID}
+		        ORDER BY A.AUTH_ID
+		      ) A
+		WHERE MENU_URL IS NOT NULL 
+	</select>
+</mapper>
