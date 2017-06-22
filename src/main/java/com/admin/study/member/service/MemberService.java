@@ -16,13 +16,15 @@ public class MemberService {
 	@Autowired
 	private MemberDao memberDao;
 	
-	public List<Map<String, Object>> getMemberList(String adminName){
-//		if(StringUtils.isEmpty(adminName)){
-//			return null;
-//		}
+	public List<Map<String, Object>> getAllMemberList(String pageNo, String listSize){
+		
+		int limitOffset = getLimitOffset(pageNo, listSize);
 		
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("ADMIN_NM", adminName);
+		params.put("LIMIT_OFFSET", limitOffset);
+		params.put("LIMIT_SIZE", listSize);
+		
+		System.out.println("limitOffset : "+limitOffset+", listSize : "+listSize);
 		
 		return memberDao.selectMemberList(params);
 	}
@@ -61,5 +63,9 @@ public class MemberService {
 		params.put("ADMIN_YN", adminYN);
 		
 		return memberDao.insertMember(params);
+	}
+	
+	public int getLimitOffset(String pageNo, String listSize){
+		return (Integer.parseInt(pageNo) - 1) * Integer.parseInt(listSize);
 	}
 }

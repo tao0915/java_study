@@ -16,7 +16,9 @@
 		FROM MEMBER_TB
 		WHERE 1 = 1
 		<include refid="selectAuthListWhere"/>
-		ORDER BY CRE_DT DESC, ADMIN_ID
+		ORDER BY CRE_DT DESC, ADMIN_ID	
+<!-- 		LIMIT 0, 10 -->
+		LIMIT ${LIMIT_OFFSET}, ${LIMIT_SIZE}
 	</select>
 	
 	<sql id="selectAuthListWhere">		

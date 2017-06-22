@@ -3,7 +3,7 @@
 <c:if test="${empty  currtUrl }"><c:set var="currtUrl">none</c:set></c:if>
 <div class="select-wrap">
 	<select class="select"  name="listSize" onchange="changeListSize(this);">
-		<option value="10"  <c:if test="${param.listSize eq '10' }">selected="selected"</c:if>>10개씩 보기</option>
+		<option value="3"  <c:if test="${param.listSize eq '3' }">selected="selected"</c:if>>3개씩 보기</option>
 		<option value="20"  <c:if test="${param.listSize eq '20' }">selected="selected"</c:if>>20개씩 보기</option>
 		<option value="30" <c:if test="${param.listSize eq '30' }">selected="selected"</c:if>>30개씩 보기</option>
 		<option value="50" <c:if test="${param.listSize eq '50' }">selected="selected"</c:if>>50개씩 보기</option>
