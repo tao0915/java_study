@@ -5,6 +5,8 @@
 	<select id="selectMemberList" parameterType="Map" resultType="Map">
 		SELECT ADMIN_ID
 		        ,ADMIN_NM
+		        ,MOBILE_NO
+		        ,EMAIL
 		        ,USE_YN
 		        ,TEL_NO
 		        ,CRE_DT
@@ -16,7 +18,24 @@
 		<include refid="selectAuthListWhere"/>
 		ORDER BY CRE_DT DESC, ADMIN_ID
 	</select>
+	
 	<sql id="selectAuthListWhere">		
-		<if test="@org.apache.commons.lang.StringUtils@isNotEmpty(ADMIN_NM)">	AND AUTH_NM LIKE #{ADMIN_NM}||'%'</if>										
-	</sql>		
+<!-- 		<if test="@org.apache.commons.lang.StringUtils@isNotEmpty(ADMIN_NM)">	AND AUTH_NM LIKE #{ADMIN_NM}||'%'</if>										 -->
+	<if test="@org.apache.commons.lang.StringUtils@isNotEmpty(ADMIN_NM)">	AND ADMIN_NM LIKE #{ADMIN_NM}||'%'</if>
+	</sql>
+	
+	<select id="selectCount" parameterType="Map" resultType="Integer">
+		SELECT COUNT(*)	
+		FROM MEMBER_TB	
+		${WHERE}
+	</select>
+	
+	<insert id="insertMember" parameterType="Map" >
+		<![CDATA[
+		INSERT 
+		INTO MEMBER_TB
+		VALUES(#{MEMBER_ID}, #{MEMBER_PWD}, #{MEMBER_NM}, #{TEL_NO}, #{MOBILE_NO}, #{EMAIL}
+		, #{ORG_NM}, #{ADMIN_YN}, "N", "", "", 0, now(), "", now(), "")
+		]]>
+	</insert>		
 </mapper>

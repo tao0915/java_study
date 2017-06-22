@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<style type="text/css">
+	.ellips-text{width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;-ms-text-overflow:ellipsis;-moz-binding:url(/xe/ellipsis.xml#ellipsis)}
+</style>
+
 <h1 class="page-tit">운영자관리</h1>
 
 <div>
@@ -43,10 +47,10 @@
 					<td><c:out value="${data.ADMIN_NM }"/></td>
 					<td><c:out value="${data.TEL_NO }"/></td>
 					<td><c:out value="${data.MOBILE_NO }"/></td>
-					<td><c:out value="${data.EMAIL }"/></td>
+					<td><a class="ellips-text" href="#"><c:out value="${data.EMAIL }"/></a></td>
 					<td><c:out value="${data.USE_YN }"/></td>
-					<td><c:out value="${data.CRE_DT }"/></td>
-					<td><c:out value="${data.MOD_DT }"/></td>
+					<td class="ellips-text"><c:out value="${data.CRE_DT }"/></td>
+					<td class="ellips-text"><c:out value="${data.MOD_DT }"/></td>
 				</tr>
 			</c:forEach>			
 			<c:if test="${empty result.list }">

@@ -21,6 +21,8 @@
 	<script type="text/javascript" src="/resources/js/publ/bootstrap/bootstrap.min.js"></script>
     <script type="text/javascript" src="/resources/js/publ/bootstrap/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript" src="/resources/js/publ/syntaxHighlighter.min.js"></script>
+    <script type="text/javascript" src="/resources/js/common.js"></script>
+    <script type="text/javascript" src="/resources/js/jquery.splendid.textchange.js"></script>
 </head>
 <body ng-app="myApp">
 	<div class="wrapper">
