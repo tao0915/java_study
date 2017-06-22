@@ -90,9 +90,14 @@ public class MemberController {
 			endPage = lastPage;
 		}
 		
+		if(nextPage > lastPage){
+			nextPage = lastPage;
+		}
+		
 		result.put("list", memberList);
 		result.put("page", page);
 		result.put("totalCount", totalCount);
+		result.put("listSize", listSize);
 		result.put("beginPage", beginPage);
 		result.put("endPage", endPage);
 		result.put("lastPage", lastPage);
@@ -172,5 +177,6 @@ public class MemberController {
 		}
 	}
 }
+
 
 

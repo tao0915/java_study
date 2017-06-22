@@ -70,27 +70,27 @@
 	</div>
 	
 	<div class="pagination" >
-	    <a href="#none" class="first">첫페이지로 이동</a>
-	    <a href="#none" class="prev">이전 페이지로 이동</a>
+	    <a href="select?page=1&listSize=${result.listSize}" class="first">첫페이지로 이동</a>
+	    <a href="select?page=${result.prevPage}&listSize=${result.listSize}" class="prev">이전 페이지로 이동</a>
 	    
 	    <c:forEach var="i" begin="${result.beginPage}" end="${result.endPage}">
-	    		<a href="#" id="page" 
+	    		<a href="select?page=${i}&listSize=${result.listSize}" id="page" 
 	    			<c:if test="${result.page eq i}">class="on"</c:if>
 <%-- 	    			<c:if test="${empty result.page and i eq result.beginPage}">class="on"</c:if> --%>
 	    		>${i}</a>
 	    </c:forEach>
 	    
-	    <a href="#none" class="next">다음 페이지로 이동</a>
-	    <a href="#none" class="last">마지막 페이지로 이동</a>
+	    <a href="select?page=${result.nextPage}&listSize=${result.listSize}" class="next">다음 페이지로 이동</a>
+	    <a href="select?page=${result.lastPage}&listSize=${result.listSize}" class="last">마지막 페이지로 이동</a>
 	</div>
 </div>
 
 
 <script type="text/javascript">
-let page = 1;
-let lastPage = ${result.lastPage};
-let nextPage = ${result.nextPage};
-let prevPage = ${result.prevPage};
+// let page = 1;
+// let lastPage = ${result.lastPage};
+// let nextPage = ${result.nextPage};
+// let prevPage = ${result.prevPage};
 
 // console.log("lastPage : "+lastPage);
 
@@ -98,57 +98,58 @@ $(document).ready(function(){
 // 	$('.pagination a').removeClass("on");
 // 	$('.pagination #pageNo').eq(pageNo-1).addClass("on");
 // 	selectMember();
-	onClickPage();
+// 	onClickPage();
 });
-	function onClickPage(){
-		$('.pagination a').click(function(){
-			console.log("page : "+$(this).text());
+// 	function onClickPage(){
+// 		$('.pagination a').click(function(){
+// 			console.log("page : "+$(this).text());
 			
-			if($(this).attr('class') == "next"){
-				page = nextPage;
-			} else if($(this).attr('class') == "prev"){
-				var listSize = $("select[name=listSize]").val();
-				page = prevPage;
+// 			if($(this).attr('class') == "next"){
+// 				page = nextPage;
+// 			} else 
+// 				if($(this).attr('class') == "prev"){
+// 				var listSize = $("select[name=listSize]").val();
+// 				page = prevPage;
 				
-			} else if($(this).attr('class') == "first"){
-				page = 1;
-			} else if($(this).attr('class') == "last"){
-				page = lastPage;
-			} else {
-				page = $(this).text();
-			}
+// 			} else if($(this).attr('class') == "first"){
+// 				page = 1;
+// 			} else if($(this).attr('class') == "last"){
+// 				page = lastPage;
+// 			} else {
+// 				page = $(this).text();
+// 			}
 			
-		 	$('.pagination a').removeClass("on");
-		 	$(this).addClass("on");
+// 		 	$('.pagination a').removeClass("on");
+// 		 	$(this).addClass("on");
 		 	
-		 	selectMember();
-		});
-	}
-	function selectMember(){
-// 		 let data = $('#frm').serializeObject();
-// 		 data.pageNo = pageNo;
-		 let listSize = $('select[name=listSize]').val();
-		 location.href = "/select?page="+page+"&listSize="+listSize;
+// 		 	selectMember();
+// 		});
+// // 	}
+// 	function selectMember(){
+// // 		 let data = $('#frm').serializeObject();
+// // 		 data.pageNo = pageNo;
+// 		 let listSize = $('select[name=listSize]').val();
+// 		 location.href = "/select?page="+page+"&listSize="+listSize;
 		 
 		 
 		 
-// 		 $.ajax({
-// 		    url : "/select.json",
-// 		    dataType : "json",
-// 		    type : "GET",
-// 		    data : data,
-// 		    success : function(data, textStatus, jqXHR){
-// 		    	if($.common.ajaxValidate(data)){
-// 		    		alert('success');
-// 		    	} else {
-// 		    		alert('알수 없는 오류가 발생 했습니다.');
-// 		    	}
-// 		    },
-// 		    error : function(){
-// 		    	alert('에러가 발생 했습니다.');
-// 		    }
-// 		 });
-	}
+// // 		 $.ajax({
+// // 		    url : "/select.json",
+// // 		    dataType : "json",
+// // 		    type : "GET",
+// // 		    data : data,
+// // 		    success : function(data, textStatus, jqXHR){
+// // 		    	if($.common.ajaxValidate(data)){
+// // 		    		alert('success');
+// // 		    	} else {
+// // 		    		alert('알수 없는 오류가 발생 했습니다.');
+// // 		    	}
+// // 		    },
+// // 		    error : function(){
+// // 		    	alert('에러가 발생 했습니다.');
+// // 		    }
+// // 		 });
+// 	}
 
 
 </script>
