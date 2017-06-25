@@ -19,4 +19,17 @@
 	<context:component-scan base-package="com.admin.study"  use-default-filters="false">
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
 	</context:component-scan>
+	
+	<!-- interface를 쓰지 않고 aop를 사용하려면 web.xml에서 servlet태그에서 설정한 context 또는 config xml에서 aop를 사용해야 하며 *(중요)
+	 pom.xml에 dependency cglib 추가, 
+	 namespaces에서 aop, tx추가
+	 
+	 참고 : <aop:config proxy-target-class="true">와 같이 설정해줘야 interface를 쓰지 않고 aop를 사용할수 있다고 여러 글을 봤지만 
+	 지금 코드는 쓰지 않아도 제대로 동작 하고 있다.  
+	
+	자세한 설명 : http://seongilman.tistory.com/119 -->
+	<aop:config>
+		<aop:pointcut id="txPointcut" expression="execution(* com.admin.study.member.controller.MemberController.insert*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
+    </aop:config>	
 </beans>

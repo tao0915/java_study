@@ -23,4 +23,8 @@ public class MemberDao extends QueryMapper {
 		return (Integer)super.insert("member.insertMember", params);
 	}
 	
+	public int deleteMember(Map<String, Object> params){
+		return (Integer)super.delete("member.deleteMember", params);
+	}
+	
 }

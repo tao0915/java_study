@@ -14,7 +14,7 @@
 		        ,MOD_DT
 		        ,MOD_ID
 		FROM MEMBER_TB
-		WHERE 1 = 1
+		WHERE 1 = 1 ${WHERE} AND DEL_YN='N'
 		<include refid="selectAuthListWhere"/>
 		ORDER BY CRE_DT DESC, ADMIN_ID	
 <!-- 		LIMIT 0, 10 -->
@@ -39,5 +39,18 @@
 		VALUES(#{MEMBER_ID}, #{MEMBER_PWD}, #{MEMBER_NM}, #{TEL_NO}, #{MOBILE_NO}, #{EMAIL}
 		, #{ORG_NM}, #{ADMIN_YN}, "N", "", "", 0, now(), "", now(), "")
 		]]>
-	</insert>		
+	</insert>
+	
+	<delete id="deleteMember" parameterType="Map" >
+		<![CDATA[
+		UPDATE  
+		MEMBER_TB
+		SET DEL_YN='Y'
+		WHERE ADMIN_ID IN
+		]]>
+		<foreach item="mapMemberId" collection="MEMBER_ID"  index="index"  open="(" close=")" separator=",">
+            #{mapMemberId}
+        </foreach>
+	</delete>
+		
 </mapper>

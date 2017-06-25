@@ -20,12 +20,14 @@ function changeListSize(obj){
 	
 	var data = $('form[name=searchFrm]').serializeObject();
 	data.listSize = $(obj).val();
+	data.page = 1;
 	
-	var option = {								
-			url : '${currtUrl}',
-			data : data,
-			backUrl:'${backUrl}'
-		};
-	menuObj.goUrl(option);
+// 	var option = {								
+// 			url : '${currtUrl}',
+// 			data : data,
+// 			backUrl:'${backUrl}'
+// 		};
+// 	menuObj.goUrl(option);
+	location.href="select?page=1&listSize="+data.listSize;
 }
 </script>

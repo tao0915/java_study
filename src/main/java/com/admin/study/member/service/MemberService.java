@@ -29,6 +29,33 @@ public class MemberService {
 		return memberDao.selectMemberList(params);
 	}
 	
+	public List<Map<String, Object>> getMemberList(String keyword, String selItem, String pageNo, String listSize){
+		
+		int limitOffset = getLimitOffset(pageNo, listSize);
+	
+		if(listSize.equals("-1")){
+			limitOffset = 0;
+			listSize = "99999";
+		}
+		
+		String where = "";
+		
+		if(selItem.equals("all")){
+			where = "AND (ADMIN_ID='"+keyword+"' OR ADMIN_NM='"+keyword+"')";
+		} else if(selItem.equals("name")){
+			where = "AND ADMIN_NM='"+keyword+"'";
+		} else {
+			where = "AND ADMIN_ID='"+keyword+"'";
+		}
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("LIMIT_OFFSET", limitOffset);
+		params.put("LIMIT_SIZE", listSize);
+		params.put("WHERE", where);
+		
+		return memberDao.selectMemberList(params);
+	}
+	
 	public int getCountId(String id){
 		if(StringUtils.isEmpty(id)){
 			return 0;
@@ -42,9 +69,84 @@ public class MemberService {
 		return memberDao.selectCount(params);
 	}
 	
-	public int getTotalCount(){
+	public int getTotalCount(String keyword, String selItem){
 		
 		Map<String, Object> params = new HashMap<String, Object>();
+
+		String where = "";
+		
+		if(!keyword.equals("")){
+			if(selItem.equals("all")){
+				where += "WHERE (ADMIN_ID='"+keyword+"' OR ADMIN_NM='"+keyword+"')";
+			} else if(selItem.equals("name")){
+				where += "WHERE ADMIN_NM='"+keyword+"'";
+			} else {
+				where += "WHERE ADMIN_ID='"+keyword+"'";
+			}
+		}
+		
+		params.put("WHERE", where);
+		
+		return memberDao.selectCount(params);
+	}
+	
+	public int getCount(String keyword, String selItem){
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+
+		String where = "WHERE DEL_YN='N'";
+		
+		if(!keyword.equals("")){
+			if(selItem.equals("all")){
+				where += " AND (ADMIN_ID='"+keyword+"' OR ADMIN_NM='"+keyword+"')";
+			} else if(selItem.equals("name")){
+				where += " AND ADMIN_NM='"+keyword+"'";
+			} else {
+				where += " AND ADMIN_ID='"+keyword+"'";
+			}
+		}
+		
+		params.put("WHERE", where);
+		
+		return memberDao.selectCount(params);
+	}
+	
+	public int getDeleteYCount(String keyword, String selItem){
+		Map<String, Object> params = new HashMap<String, Object>();
+		
+		String where = "WHERE DEL_YN='Y'";
+		
+		if(!keyword.equals("")){
+			if(selItem.equals("all")){
+				where += " AND (ADMIN_ID='"+keyword+"' OR ADMIN_NM='"+keyword+"')";
+			} else if(selItem.equals("name")){
+				where += " AND ADMIN_NM='"+keyword+"'";
+			} else {
+				where += " AND ADMIN_ID='"+keyword+"'";
+			}
+		}
+		
+		params.put("WHERE", where);
+		
+		return memberDao.selectCount(params);
+	}
+	
+	public int getDeleteNCount(String keyword, String selItem){
+		Map<String, Object> params = new HashMap<String, Object>();
+		
+		String where = "WHERE DEL_YN='N'";
+		
+		if(!keyword.equals("")){
+			if(selItem.equals("all")){
+				where += " AND (ADMIN_ID='"+keyword+"' OR ADMIN_NM='"+keyword+"')";
+			} else if(selItem.equals("name")){
+				where += " AND ADMIN_NM='"+keyword+"'";
+			} else {
+				where += " AND ADMIN_ID='"+keyword+"'";
+			}
+		}
+		
+		params.put("WHERE", where);
 		
 		return memberDao.selectCount(params);
 	}
@@ -63,6 +165,21 @@ public class MemberService {
 		params.put("ADMIN_YN", adminYN);
 		
 		return memberDao.insertMember(params);
+	}
+	
+	public int deleteMember(String[] checkArray){
+		Map<String, Object> memberId = new HashMap<String, Object>();
+		
+		for(int i = 0; i < checkArray.length; i++){
+			memberId.put(String.valueOf(i), checkArray[i]);
+			
+			System.out.println("checkArray : "+memberId.get(String.valueOf(i)));
+		}
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("MEMBER_ID", memberId);
+		
+		return memberDao.deleteMember(params);
 	}
 	
 	public int getLimitOffset(String pageNo, String listSize){
