@@ -5,12 +5,27 @@
 	.ellips-text{width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;-ms-text-overflow:ellipsis;-moz-binding:url(/xe/ellipsis.xml#ellipsis)}
 </style>
 
+<%-- <c:set value="$('#listSize').val()" var="listSize"/> --%>
+
+<%-- <c:set var="listSize">$('#listSize').val()</c:set> --%>
+
+<%-- <c:if test="${empty success}"> --%>
+<!-- <h1> -->
+<!-- 	empty success -->
+<!-- </h1> -->
+<%-- 	<c:url var= "url" value = "http://localhost:8080/select"> --%>
+<%--         <c:param name= "page" value = "1" /> --%>
+<%--         <c:param name= "listSize" value = "3" /> --%>
+<%-- 	</c:url>	 --%>
+
+<%-- 	<c:redirect url="http://localhost:8080/select?page=1&listSize=3" /> --%>
+<%-- </c:if> --%>
 
 <h1 class="page-tit">운영자관리</h1>
 
 <div class="search-set">
 	<strong class="tit">회원검색</strong>
-	<form id="searchFrm" name="searchFrm" >
+<!-- 	<form id="searchFrm" name="searchFrm" > -->
 	<select class="select" id="select-item" name="select-item">
 		<option value="all">전체</option>
 		<option value="name">이름</option>
@@ -21,7 +36,7 @@
     <span class="checkbox-w txt-1">
 		<label class="on"><input type="checkbox" name="except">탈퇴회원 제외</label>
 	</span>
-	</form>
+<!-- 	</form> -->
 </div>
 <div class="result-wrap">
     <p class="total-feed">전체 : 
@@ -29,7 +44,7 @@
     	<em><c:out value="${result.delNcount}"></c:out></em>명, 탈퇴회원 : 
     	<em><c:out value="${result.delYcount}"></c:out></em>명)</p>
     <div class="btn-wrap">
-			<a class="btn-type4" href="excel?selectitem=${selectItem}&keyword=${keyword}">Excel 다운로드</a>
+			<a class="btn-type4" href="excel?selectitem=${selectitem}&keyword=${keyword}">Excel 다운로드</a>
     </div>
 </div>
 
@@ -108,8 +123,8 @@
 	    		<a href="select?page=${result.prevPage}&listSize=${result.listSize}" class="prev">이전 페이지로 이동</a>
 		    </c:when>
 		    <c:otherwise>
-		    	<a href="select?page=1&listSize=${result.listSize}&selectitem=${selectItem}&keyword=${keyword}" class="first">첫페이지로 이동</a>
-	    		<a href="select?page=${result.prevPage}&listSize=${result.listSize}&selectitem=${selectItem}&keyword=${keyword}" class="prev">이전 페이지로 이동</a>
+		    	<a href="select?page=1&listSize=${result.listSize}&selectitem=${selectitem}&keyword=${keyword}" class="first">첫페이지로 이동</a>
+	    		<a href="select?page=${result.prevPage}&listSize=${result.listSize}&selectitem=${selectitem}&keyword=${keyword}" class="prev">이전 페이지로 이동</a>
 		    </c:otherwise>
 	    </c:choose>
 	    
@@ -122,7 +137,7 @@
 	    				>${i}</a>
 		    		</c:when>
 		    		<c:otherwise>
-		    			<a href="select?page=${i}&listSize=${result.listSize}&selectitem=${selectItem}&keyword=${keyword}" id="page" 
+		    			<a href="select?page=${i}&listSize=${result.listSize}&selectitem=${selectitem}&keyword=${keyword}" id="page" 
 	    					<c:if test="${result.page eq i}">class="on"</c:if>
 	    				>${i}</a>
 		    		</c:otherwise>
@@ -136,8 +151,8 @@
 	    <a href="select?page=${result.totalPage}&listSize=${result.listSize}" class="last">마지막 페이지로 이동</a>
 		    </c:when>
 		    <c:otherwise>
-		    	<a href="select?page=${result.nextPage}&listSize=${result.listSize}&selectitem=${selectItem}&keyword=${keyword}" class="next">다음 페이지로 이동</a>
-	    <a href="select?page=${result.totalPage}&listSize=${result.listSize}&selectitem=${selectItem}&keyword=${keyword}" class="last">마지막 페이지로 이동</a>
+		    	<a href="select?page=${result.nextPage}&listSize=${result.listSize}&selectitem=${selectitem}&keyword=${keyword}" class="next">다음 페이지로 이동</a>
+	    <a href="select?page=${result.totalPage}&listSize=${result.listSize}&selectitem=${selectitem}&keyword=${keyword}" class="last">마지막 페이지로 이동</a>
 		    </c:otherwise>
 	    </c:choose>
 	</div>
@@ -149,47 +164,58 @@
 <script type="text/javascript">
 
 
-$(document).ready(function(){
-	onClickCheckbox();
-});
 
-	function searchMember(){
-// 		var data = $('form[name=searchFrm]').serializeObject();
-// 		data.listSize = ${result.listSize};
-// 		data.page=1;
-		
-// 		var form = $('form[name=searchFrm]');
-		
-// 		form.appendChild(data);
-// 		console.log(data);
-		var listSize = ${result.listSize};
-		var selectitem = $('#select-item').val();
-		var keyword = $('input[name=keyword]').val();
-
-// 		form.action="select?page=1&listSize="+listSize+
-// 				"&selectitem="+selectitem+"&keyword="+keyword;
-// 		form.submit();
-		location.href="select?page=1&listSize="+listSize+
-			"&selectitem="+selectitem+"&keyword="+keyword;
+	$(document).ready(function() {
+		checkFirstConnect();
+		onClickCheckbox();
+		enterSearch();
+	});
+	
+	function checkFirstConnect(){
+		let first = ${first};
+		if(first == true){
+			console.log("isEmptyObject");
+			location.href="select?page=1&listSize="+getElementValue('select[name=listSize]');
+		}
+	}
+	
+	function enterSearch(){
+		$('input[name=keyword]').keypress(function(key){
+			if(key.which == 13){
+				searchMember();
+				console.log("enterSearch");
+			}
+		});
 	}
 
-	function onClickCheckbox(){
-		$('.tbl-1 label').click(function(){
-			
-			if($(this).attr("id") == "check-all"){
+	function searchMember() {
+// 		var listSize = ${result.listSize};
+		var listSize = getElementValue('select[name=listSize]');
+		// 		var selectitem = $('#select-item').val();
+		var selectitem = getElementValue('#select-item');
+		var keyword = getElementValue('input[name=keyword]');
+
+		location.href = "select?page=1&listSize=" + listSize + "&selectitem="
+				+ selectitem + "&keyword=" + keyword;
+	}
+
+	function onClickCheckbox() {
+		$('.tbl-1 label').click(function() {
+
+			if ($(this).attr("id") == "check-all") {
 				onClickAllCheck($(this));
 			}
-			
-			if($(this).children('input').is(':checked')){
+
+			if ($(this).children('input').is(':checked')) {
 				$(this).addClass('on');
 			} else {
 				$(this).removeClass('on');
 			}
 		});
 	}
-	
-	function onClickAllCheck(tempThis){
-		if(tempThis.children('input').is(':checked')){
+
+	function onClickAllCheck(tempThis) {
+		if (tempThis.children('input').is(':checked')) {
 			console.log("checked1");
 			$(".check-member").addClass("on");
 			$(".checkbox-a").prop('checked', true);
@@ -198,63 +224,63 @@ $(document).ready(function(){
 			resetAllCheck();
 		}
 	}
-	
-	function resetAllCheck(){
+
+	function resetAllCheck() {
 		$(".check-member").removeClass('on');
 		$(".checkbox-a").prop('checked', false);
 	}
-	
-	function onClickDelete(){
+
+	function onClickDelete() {
 		const result = confirm('정말 삭제 하시겠습니까?');
-		
-		if(!result){
+
+		if (!result) {
 			return;
 		}
-		
-		let data= {};
-		
+
+		let data = {};
+
 		data.checkArray = getCheckValue();
-		
-		if(data.checkArray.length == 0){
+
+		if (data.checkArray.length == 0) {
 			alert("선택한 대상이 없습니다.");
 			return;
 		}
-		
+
 		console.log(data);
-		
+
 		$.ajax({
-			url : "/delete.json",
-			dataType : "json",
-			type : "POST",
-			data : data,
-			success : function(data, textStatus, jqXHR){
-				if($.common.ajaxValidate(data)){
-					alert('삭제 성공');
-					location.href='select?page=${result.page}&listSize=${result.listSize}';
-				} else {
-		  			alert('삭제 실패');
-				}
-			},
-			error : function(){
-				alert('에러가 발생 했습니다.');
-			 }
-		});
+					url : "/delete.json",
+					dataType : "json",
+					type : "POST",
+					data : data,
+					success : function(data, textStatus, jqXHR) {
+						if ($.common.ajaxValidate(data)) {
+							alert('삭제 성공');
+							location.href = 'select?page=${result.page}&listSize=${result.listSize}';
+						} else {
+							alert('삭제 실패');
+						}
+					},
+					error : function() {
+						alert('에러가 발생 했습니다.');
+					}
+				});
 	}
-	
-	function getCheckValue(){
-		
-		let checkboxValues=[];
-		
-		$('input[name=checkbox]:checked').each(function(i){
+
+	function getCheckValue() {
+
+		let checkboxValues = [];
+
+		$('input[name=checkbox]:checked').each(function(i) {
 			checkboxValues.push($(this).val());
 		});
-		
+
 		return checkboxValues;
 	}
-	
-function email_layer_open(el) {
-		console.log("email_layer_open");	
-	
+
+	function email_layer_open(el) {
+		console.log("email_layer_open");
+
 		var temp = $('#pop-layer-email');
 		var bg = temp.prev().hasClass('bg'); //dimmed 레이어를 감지하기 위한 boolean 변수
 
@@ -263,9 +289,8 @@ function email_layer_open(el) {
 		} else {
 			temp.show();
 		}
-		
+
 		$("input[name=address]").val(el.text);
-		
 
 		// 화면의 중앙에 레이어를 띄운다.
 		if (temp.outerHeight() < $(document).height())
@@ -283,26 +308,28 @@ function email_layer_open(el) {
 			} else {
 				temp.dhie();
 			}
-			
+
 			$('#form-email')[0].reset();
-	    });
-		
+		});
+
 		$('#layer-email .bg').click(function(e) { //배경을 클릭하면 레이어를 사라지게 하는 이벤트 핸들러
 			$('#layer-email').hide();
 			e.preventDefault();
-			
+
 			$('#form-email')[0].reset();
 		});
 	}
-	
-	function sendEamil(){
-		if(!$('#form-email').validateForm()){ return false; }
-		
+
+	function sendEamil() {
+		if (!$('#form-email').validateForm()) {
+			return false;
+		}
+
 		$('#layer-sending').show();
-		
+
 		var temp = $('#pop-layer-sending');
 		var bg = temp.prev().hasClass('bg'); //dimmed 레이어를 감지하기 위한 boolean 변수
-		
+
 		// 화면의 중앙에 레이어를 띄운다.
 		if (temp.outerHeight() < $(document).height())
 			temp.css('margin-top', '-' + temp.outerHeight() / 2 + 'px');
@@ -312,56 +339,35 @@ function email_layer_open(el) {
 			temp.css('margin-left', '-' + temp.outerWidth() / 2 + 'px');
 		else
 			temp.css('left', '0px');
-		
+
 		sendEmailObj.sendEmailAction();
 	}
-	
+
 	var sendEmailObj = {
-			submitFlag : true,
-			sendEmailAction : function() {
-				
-				var data = $('#form-email').serializeObject();
-				
-				console.log(data);
-				
-				$.ajax({
-					url : "/sendEmail.json",
-					dataType : "json",
-					type : "POST",
-					data : data,
-					success : function(data, textStatus, jqXHR) {
-						alert('메일 전송 완료');
-						
-						$('#layer-sending').hide();
-						$('#form-email')[0].reset();
-						$('#layer-email').hide();
-					},
-					error : function() {
-						alert('메일 전송을 실패');
-						$('#layer-sending').hide();
-					}
-				});
-			}
-		};
-	
-// 	var downExcelObj = {
-// 			submitFlag : true,
-// 			downExcelAction : function() {
-// 			var data = $('#search-form').serializeObject();
-// 		//			 data.abc = "abc";
-// 			console.log(data);
-// 			$.ajax({
-// 				url : "/admin/excel.json",
-// 				dataType : "json",
-// 				type : "POST",
-// 				data : data,
-// 				success : function(data, textStatus, jqXHR) {
-// 					alert('엑셀 저장을 성공 하였습니다.');
-// 				},
-// 				error : function() {
-// 					alert('엑셀 저장을 실패 했습니다.');
-// 				}
-// 			});
-// 		}
-// 	};
+		submitFlag : true,
+		sendEmailAction : function() {
+
+			var data = $('#form-email').serializeObject();
+
+			console.log(data);
+
+			$.ajax({
+				url : "/sendEmail.json",
+				dataType : "json",
+				type : "POST",
+				data : data,
+				success : function(data, textStatus, jqXHR) {
+					alert('메일 전송 완료');
+
+					$('#layer-sending').hide();
+					$('#form-email')[0].reset();
+					$('#layer-email').hide();
+				},
+				error : function() {
+					alert('메일 전송을 실패');
+					$('#layer-sending').hide();
+				}
+			});
+		}
+	};
 </script>

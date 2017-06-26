@@ -45,9 +45,10 @@ public class MemberController {
 	
 	@RequestMapping(value = "/admin" , method = {RequestMethod.GET,RequestMethod.POST})
 	public String adminList(@RequestParam Map<String, Object> params, ModelMap map) throws Exception {
-		Select(params, map);
-		
-		return "admin/adminList.tiles";
+//		Select(params, map);
+//		map.addAttribute("first", true);
+//		return "admin/adminList.tiles";
+		return "redirect:select?page=1&listSize=3";
 	}
 	
 	@RequestMapping(value = "/select" , method = {RequestMethod.GET, RequestMethod.POST})
@@ -65,14 +66,6 @@ public class MemberController {
 		String keyword = StringUtils.defaultString((String)params.get("keyword"), "");
 		
 		System.out.println("keyword : "+keyword+", selItem : "+selectItem);
-		
-		if(page.equals("")){
-			page = "1";
-		}
-		
-		if(listSize.equals("")){
-			listSize="3";
-		}
 		
 		int nPageNo = Integer.parseInt(page);
 		int nListSize = Integer.parseInt(listSize);
@@ -137,8 +130,8 @@ public class MemberController {
 		map.addAttribute("resultCode", 1);
 		map.addAttribute("currtUrl", "select");
 		map.addAttribute("keyword", keyword);
-		map.addAttribute("selectItem", selectItem);
-		
+		map.addAttribute("selectitem", selectItem);
+		map.addAttribute("first", false);
 		
 		return "admin/adminList.tiles";
 	}

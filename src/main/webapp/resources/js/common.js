@@ -279,5 +279,19 @@ function loadingBarStop(){
 	}
 }
 
+function getElementValue(el){
+	return $(el).val();
+}
 
+function setElementValue(el, val){
+	$(el).val(val);
+}
+
+function getElementText(el){
+	return $(el).text();
+}
+
+function setElementText(el, text){
+	$(el).text(text);
+}
 

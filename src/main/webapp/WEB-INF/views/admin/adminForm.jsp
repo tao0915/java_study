@@ -89,6 +89,7 @@
 <div class="form-wrap">
 	<div class="btn-wrap">
 		<a class="btn-type4" href="#" onclick="adminSave();">저장</a>
+		<a class="btn-type4" href="admin">취소</a>
 	</div>
 </div>
 
